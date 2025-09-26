@@ -9,6 +9,7 @@ import { SalesChart } from '@/components/charts/SalesChart'
 import { StateChart } from '@/components/charts/StateChart'
 import { ProductChart } from '@/components/charts/ProductChart'
 import { StatusChart } from '@/components/charts/StatusChart'
+import { ProductsTable } from '@/components/ProductsTable'
 import { ShopeeOrder, FilterOptions } from '@/types/shopee'
 import { processShopeeData } from '@/lib/data-processing'
 
@@ -128,42 +129,8 @@ export function Dashboard({ data }: DashboardProps) {
         </Card>
       </div>
 
-      {/* Tabela de Produtos Mais Vendidos */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Ranking de Produtos</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left p-2">Posição</th>
-                  <th className="text-left p-2">Produto</th>
-                  <th className="text-right p-2">Quantidade</th>
-                  <th className="text-right p-2">Receita</th>
-                </tr>
-              </thead>
-              <tbody>
-                {metrics.produtosMaisVendidos.slice(0, 10).map((produto, index) => (
-                  <tr key={produto.produto} className="border-b hover:bg-muted/50">
-                    <td className="p-2 font-medium">#{index + 1}</td>
-                    <td className="p-2">
-                      <div className="max-w-xs truncate" title={produto.produto}>
-                        {produto.produto}
-                      </div>
-                    </td>
-                    <td className="p-2 text-right">{produto.quantidade}</td>
-                    <td className="p-2 text-right font-medium">
-                      R$ {produto.receita.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Tabela Completa de Produtos */}
+      <ProductsTable data={data} />
     </div>
   )
 }

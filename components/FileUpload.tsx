@@ -34,6 +34,24 @@ export function FileUpload({ onDataLoaded }: FileUploadProps) {
     }
   }, [onDataLoaded])
 
+  const loadRealData = useCallback(async () => {
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      const response = await fetch('/data/dados-reais-shopee.json')
+      if (!response.ok) {
+        throw new Error('Erro ao carregar dados reais')
+      }
+      const data = await response.json()
+      onDataLoaded(data)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao carregar dados reais')
+    } finally {
+      setIsLoading(false)
+    }
+  }, [onDataLoaded])
+
   const handleFile = useCallback(async (file: File) => {
     setIsLoading(true)
     setError(null)
@@ -158,7 +176,15 @@ export function FileUpload({ onDataLoaded }: FileUploadProps) {
                 onClick={loadExampleData}
                 disabled={isLoading}
               >
-                Carregar Dados de Exemplo
+                Dados de Exemplo
+              </Button>
+
+              <Button
+                variant="default"
+                onClick={loadRealData}
+                disabled={isLoading}
+              >
+                Seus Dados Reais
               </Button>
             </div>
           </div>
