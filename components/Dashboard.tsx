@@ -6,6 +6,7 @@ import { StatsCards } from '@/components/StatsCards'
 import { ShopeeFilters } from '@/components/ShopeeFilters'
 import { OrderTable } from '@/components/OrderTable'
 import { OrderCard } from '@/components/OrderCard'
+import { OrderDetails } from '@/components/OrderDetails'
 import { ProductsTable } from '@/components/ProductsTable'
 import { SalesChart } from '@/components/charts/SalesChart'
 import { StateChart } from '@/components/charts/StateChart'
@@ -301,6 +302,14 @@ export function Dashboard({ data }: DashboardProps) {
             </TabsContent>
         </Tabs>
       </div>
+
+      {/* Modal de Detalhes do Pedido */}
+      {selectedOrder && (
+        <OrderDetails 
+          order={selectedOrder} 
+          onClose={() => setSelectedOrder(null)} 
+        />
+      )}
     </div>
   )
 }
