@@ -142,10 +142,6 @@ export function processShopeeData(orders: ShopeeOrder[], filters?: FilterOptions
       const valor = Number(order["Valor Total"]) || 0
       vendasPorDiaMap.set(date, current + valor)
       
-      // Log para debug - mostrar dados do dia 31
-      if (date.includes('31')) {
-        console.log(`Dia 31 encontrado - Pedido ${index + 1}: ${date} - R$ ${valor}`)
-      }
     } else {
       console.warn(`Não foi possível processar data do pedido ${index + 1}: "${order["Data de criação do pedido"]}"`)
     }
@@ -155,7 +151,6 @@ export function processShopeeData(orders: ShopeeOrder[], filters?: FilterOptions
     .map(([data, vendas]) => ({ data, vendas }))
     .sort((a, b) => a.data.localeCompare(b.data))
   
-  console.log('Vendas por dia processadas:', vendasPorDia)
 
   // Vendas por estado
   const vendasPorEstadoMap = new Map<string, number>()

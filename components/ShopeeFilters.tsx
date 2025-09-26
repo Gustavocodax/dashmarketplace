@@ -166,18 +166,12 @@ export function ShopeeFilters({
       const dateStr = format(orderDate, 'yyyy-MM-dd')
       availableDates.add(dateStr)
       
-      // Log para debug - mostrar algumas datas processadas
-      if (index < 5) {
-        console.log(`Data processada ${index + 1}: "${order["Data de criação do pedido"]}" -> ${dateStr}`)
-      }
     } else {
       console.warn(`Não foi possível processar data do pedido ${index + 1}: "${order["Data de criação do pedido"]}"`)
     }
   })
 
   const sortedDates = Array.from(availableDates).sort()
-  console.log(`Total de datas únicas encontradas: ${sortedDates.length}`)
-  console.log(`Datas disponíveis:`, sortedDates)
 
   return (
     <div className="relative" ref={dropdownRef}>

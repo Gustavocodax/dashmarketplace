@@ -8,7 +8,6 @@ interface SalesChartProps {
 }
 
 export function SalesChart({ data }: SalesChartProps) {
-  console.log('SalesChart - Dados recebidos:', data)
   
   const formatTooltipValue = (value: number) => formatCurrency(value)
   const formatXAxisLabel = (tickItem: string) => {
@@ -41,11 +40,7 @@ export function SalesChart({ data }: SalesChartProps) {
           />
           <Tooltip 
             formatter={(value: number) => [formatTooltipValue(value), 'Vendas']}
-            labelFormatter={(label) => {
-              const formattedDate = formatXAxisLabel(label)
-              console.log(`Tooltip - Data: ${label} -> ${formattedDate}`)
-              return `Data: ${formattedDate}`
-            }}
+            labelFormatter={(label) => `Data: ${formatXAxisLabel(label)}`}
             contentStyle={{
               backgroundColor: 'hsl(var(--card))',
               border: '1px solid hsl(var(--border))',
