@@ -1,31 +1,77 @@
 'use client'
 
-import { useState } from 'react'
-import { Calendar, Filter, X } from 'lucide-react'
+import { useState, useMemo } from 'react'
+import { Filter, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { FilterOptions } from '@/types/shopee'
+import { FilterOptions, ShopeeOrder } from '@/types/shopee'
+import { parseISO, format, isValid } from 'date-fns'
+import { DateRangeSelector } from './DateRangeSelector'
 
 interface FilterPanelProps {
   onFiltersChange: (filters: FilterOptions) => void
   availableStatuses: string[]
   availableStates: string[]
   availableProducts: string[]
+  data: ShopeeOrder[]
 }
 
 export function FilterPanel({ 
   onFiltersChange, 
   availableStatuses, 
   availableStates, 
-  availableProducts 
+  availableProducts,
+  data
 }: FilterPanelProps) {
   const [filters, setFilters] = useState<FilterOptions>({})
   const [isOpen, setIsOpen] = useState(false)
 
-  const handleDateChange = (field: 'dataInicio' | 'dataFim', value: string) => {
+  // Função para parsear datas de forma robusta
+  function parseDate(dateString: string): Date | null {
+    if (!dateString || dateString.trim() === '') return null
+    
+    try {
+      const parsed = parseISO(dateString)
+      return isValid(parsed) ? parsed : null
+    } catch (e) {
+      try {
+        const parsed = new Date(dateString)
+        return isValid(parsed) ? parsed : null
+      } catch (e) {
+        return null
+      }
+    }
+  }
+
+  // Extrair datas disponíveis dos dados
+  const availableDates = useMemo(() => {
+    const dates = new Set<string>()
+    
+    data.forEach(order => {
+      const orderDate = parseDate(order["Data de criação do pedido"])
+      if (orderDate) {
+        dates.add(format(orderDate, 'yyyy-MM-dd'))
+      }
+    })
+    
+    return Array.from(dates).sort()
+  }, [data])
+
+  // Encontrar data mínima e máxima
+  const dateRange = useMemo(() => {
+    if (availableDates.length === 0) return { min: '', max: '' }
+    
+    return {
+      min: availableDates[0],
+      max: availableDates[availableDates.length - 1]
+    }
+  }, [availableDates])
+
+  const handleDateRangeChange = (startDate: Date | null, endDate: Date | null) => {
     const newFilters = {
       ...filters,
-      [field]: value ? new Date(value) : undefined
+      dataInicio: startDate,
+      dataFim: endDate
     }
     setFilters(newFilters)
     onFiltersChange(newFilters)
@@ -90,30 +136,16 @@ export function FilterPanel({
           <CardContent className="space-y-6">
             {/* Filtro de Data */}
             <div className="space-y-3">
-              <h4 className="font-medium flex items-center space-x-2">
-                <Calendar className="w-4 h-4" />
-                <span>Período</span>
-              </h4>
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="text-xs text-muted-foreground">Data Início</label>
-                  <input
-                    type="date"
-                    value={filters.dataInicio?.toISOString().split('T')[0] || ''}
-                    onChange={(e) => handleDateChange('dataInicio', e.target.value)}
-                    className="w-full p-2 text-sm border rounded-md"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-muted-foreground">Data Fim</label>
-                  <input
-                    type="date"
-                    value={filters.dataFim?.toISOString().split('T')[0] || ''}
-                    onChange={(e) => handleDateChange('dataFim', e.target.value)}
-                    className="w-full p-2 text-sm border rounded-md"
-                  />
-                </div>
+              <h4 className="font-medium">Período</h4>
+              <div className="text-xs text-muted-foreground mb-2">
+                Período disponível: {dateRange.min} até {dateRange.max}
               </div>
+              <DateRangeSelector
+                data={data}
+                onDateRangeChange={handleDateRangeChange}
+                currentStartDate={filters.dataInicio}
+                currentEndDate={filters.dataFim}
+              />
             </div>
 
             {/* Filtro de Status */}

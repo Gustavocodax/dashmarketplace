@@ -4,7 +4,7 @@ Um dashboard interativo para análise de dados de vendas da Shopee, construído 
 
 ## 🚀 Funcionalidades
 
-- **Upload de Dados**: Suporte para arquivos CSV e JSON com dados da Shopee
+- **Upload de Dados**: Suporte para arquivos CSV, JSON e XLSX com dados da Shopee
 - **Métricas Principais**: Total de vendas, pedidos, ticket médio e produtos únicos
 - **Visualizações Interativas**: Gráficos de vendas por dia, estado, produtos e status
 - **Filtros Avançados**: Filtre por data, status, estado e produto
@@ -19,6 +19,7 @@ Um dashboard interativo para análise de dados de vendas da Shopee, construído 
 - **Recharts** - Biblioteca de gráficos
 - **Lucide React** - Ícones modernos
 - **Framer Motion** - Animações suaves
+- **XLSX** - Processamento de arquivos Excel
 
 ## 📦 Instalação
 
@@ -30,20 +31,22 @@ cd Dash
 
 2. Instale as dependências:
 ```bash
-pnpm install
+npm install
 ```
 
 3. Execute o projeto em modo de desenvolvimento:
 ```bash
-pnpm dev
+npm run dev
 ```
 
 4. Abra [http://localhost:3000](http://localhost:3000) no seu navegador.
 
+> **Nota**: Este projeto usa NPM como gerenciador de pacotes. Veja [INSTRUCOES_NPM.md](./INSTRUCOES_NPM.md) para comandos detalhados.
+
 ## 📊 Como Usar
 
 1. **Faça Upload dos Dados**: 
-   - Clique em "Selecionar Arquivo" ou arraste um arquivo CSV/JSON
+   - Clique em "Selecionar Arquivo" ou arraste um arquivo CSV/JSON/XLSX
    - O arquivo deve conter dados de vendas da Shopee no formato especificado
 
 2. **Explore o Dashboard**:
@@ -81,10 +84,10 @@ pnpm dev
 
 ## 🔧 Scripts Disponíveis
 
-- `pnpm dev` - Executa o projeto em modo de desenvolvimento
-- `pnpm build` - Gera build de produção
-- `pnpm start` - Executa o build de produção
-- `pnpm lint` - Executa o linter ESLint
+- `npm run dev` - Executa o projeto em modo de desenvolvimento
+- `npm run build` - Gera build de produção
+- `npm start` - Executa o build de produção
+- `npm run lint` - Executa o linter ESLint
 
 ## 📈 Formato dos Dados
 

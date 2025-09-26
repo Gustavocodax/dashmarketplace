@@ -5,7 +5,7 @@ import { Upload, FileText, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { ShopeeOrder } from '@/types/shopee'
-import { parseCSVData } from '@/lib/data-processing'
+import { parseCSVData, parseXLSXData } from '@/lib/data-processing'
 
 interface FileUploadProps {
   onDataLoaded: (data: ShopeeOrder[]) => void
@@ -16,20 +16,47 @@ export function FileUpload({ onDataLoaded }: FileUploadProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  const loadExampleData = useCallback(async () => {
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      const response = await fetch('/data/exemplo-shopee.json')
+      if (!response.ok) {
+        throw new Error('Erro ao carregar dados de exemplo')
+      }
+      const data = await response.json()
+      onDataLoaded(data)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao carregar dados de exemplo')
+    } finally {
+      setIsLoading(false)
+    }
+  }, [onDataLoaded])
+
   const handleFile = useCallback(async (file: File) => {
     setIsLoading(true)
     setError(null)
 
     try {
-      const text = await file.text()
       let data: ShopeeOrder[]
 
       if (file.type === 'application/json') {
+        const text = await file.text()
         data = JSON.parse(text)
       } else if (file.type === 'text/csv' || file.name.endsWith('.csv')) {
+        const text = await file.text()
         data = parseCSVData(text)
+      } else if (
+        file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+        file.type === 'application/vnd.ms-excel' ||
+        file.name.endsWith('.xlsx') ||
+        file.name.endsWith('.xls')
+      ) {
+        const buffer = await file.arrayBuffer()
+        data = parseXLSXData(buffer)
       } else {
-        throw new Error('Formato de arquivo não suportado. Use CSV ou JSON.')
+        throw new Error('Formato de arquivo não suportado. Use CSV, JSON ou XLSX.')
       }
 
       if (!Array.isArray(data) || data.length === 0) {
@@ -98,32 +125,42 @@ export function FileUpload({ onDataLoaded }: FileUploadProps) {
                 {isLoading ? 'Processando arquivo...' : 'Faça upload dos dados da Shopee'}
               </h3>
               <p className="text-sm text-muted-foreground">
-                Arraste e solte seu arquivo CSV ou JSON aqui, ou clique para selecionar
+                Arraste e solte seu arquivo CSV, JSON ou XLSX aqui, ou clique para selecionar
               </p>
             </div>
 
             <div className="flex items-center space-x-2 text-xs text-muted-foreground">
               <FileText className="w-4 h-4" />
-              <span>Formatos suportados: CSV, JSON</span>
+              <span>Formatos suportados: CSV, JSON, XLSX</span>
             </div>
 
             <input
               type="file"
-              accept=".csv,.json"
+              accept=".csv,.json,.xlsx,.xls"
               onChange={handleFileInput}
               className="hidden"
               id="file-upload"
               disabled={isLoading}
             />
-            <Button
-              asChild
-              variant="outline"
-              disabled={isLoading}
-            >
-              <label htmlFor="file-upload" className="cursor-pointer">
-                Selecionar Arquivo
-              </label>
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button
+                asChild
+                variant="outline"
+                disabled={isLoading}
+              >
+                <label htmlFor="file-upload" className="cursor-pointer">
+                  Selecionar Arquivo
+                </label>
+              </Button>
+              
+              <Button
+                variant="secondary"
+                onClick={loadExampleData}
+                disabled={isLoading}
+              >
+                Carregar Dados de Exemplo
+              </Button>
+            </div>
           </div>
         </div>
 

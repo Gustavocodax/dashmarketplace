@@ -50,6 +50,7 @@ export function Dashboard({ data }: DashboardProps) {
           availableStatuses={availableStatuses}
           availableStates={availableStates}
           availableProducts={availableProducts}
+          data={data}
         />
       </div>
 
