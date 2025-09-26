@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, isToday } from 'date-fns'
@@ -32,7 +32,17 @@ export function Calendar({ selectedDate, onDateSelect, availableDates = [], clas
     return { firstMonth: first, lastMonth: last, availableDatesSet: datesSet }
   }, [availableDates])
 
-  const [currentMonth, setCurrentMonth] = useState(selectedDate || firstMonth)
+  const [currentMonth, setCurrentMonth] = useState(() => {
+    // Se há uma data selecionada e ela tem dados, usar ela
+    if (selectedDate) {
+      const selectedDateStr = format(selectedDate, 'yyyy-MM-dd')
+      if (availableDatesSet.has(selectedDateStr)) {
+        return selectedDate
+      }
+    }
+    // Caso contrário, usar o primeiro mês com dados
+    return firstMonth
+  })
 
   // Memoizar os dias do calendário
   const { monthStart, monthEnd, allDays } = useMemo(() => {
@@ -65,6 +75,23 @@ export function Calendar({ selectedDate, onDateSelect, availableDates = [], clas
     return availableDatesSet.has(dateStr)
   }, [availableDatesSet])
 
+  // Verificar se o mês atual tem dados disponíveis
+  const currentMonthHasData = useMemo(() => {
+    return availableDates.some(dateStr => {
+      const date = new Date(dateStr)
+      return date.getFullYear() === currentMonth.getFullYear() && 
+             date.getMonth() === currentMonth.getMonth()
+    })
+  }, [availableDates, currentMonth])
+
+  // Garantir que o calendário sempre esteja em um mês com dados
+  useEffect(() => {
+    if (!currentMonthHasData && availableDates.length > 0) {
+      // Se o mês atual não tem dados, navegar para o primeiro mês com dados
+      setCurrentMonth(firstMonth)
+    }
+  }, [currentMonthHasData, availableDates.length, firstMonth])
+
   const isDateSelected = useCallback((date: Date) => {
     return selectedDate && isSameDay(date, selectedDate)
   }, [selectedDate])
@@ -77,14 +104,30 @@ export function Calendar({ selectedDate, onDateSelect, availableDates = [], clas
 
   const goToPreviousMonth = () => {
     const prevMonth = subMonths(currentMonth, 1)
-    if (prevMonth >= firstMonth) {
+    
+    // Verificar se o mês anterior tem dados disponíveis
+    const hasDataInPrevMonth = availableDates.some(dateStr => {
+      const date = new Date(dateStr)
+      return date.getFullYear() === prevMonth.getFullYear() && 
+             date.getMonth() === prevMonth.getMonth()
+    })
+    
+    if (hasDataInPrevMonth) {
       setCurrentMonth(prevMonth)
     }
   }
 
   const goToNextMonth = () => {
     const nextMonth = addMonths(currentMonth, 1)
-    if (nextMonth <= lastMonth) {
+    
+    // Verificar se o próximo mês tem dados disponíveis
+    const hasDataInNextMonth = availableDates.some(dateStr => {
+      const date = new Date(dateStr)
+      return date.getFullYear() === nextMonth.getFullYear() && 
+             date.getMonth() === nextMonth.getMonth()
+    })
+    
+    if (hasDataInNextMonth) {
       setCurrentMonth(nextMonth)
     }
   }
@@ -97,7 +140,13 @@ export function Calendar({ selectedDate, onDateSelect, availableDates = [], clas
     } else {
       // Se hoje não tem dados, vai para o primeiro mês disponível
       setCurrentMonth(firstMonth)
-      onDateSelect(null)
+      // Selecionar a primeira data disponível
+      if (availableDates.length > 0) {
+        const firstDate = new Date(availableDates[0])
+        onDateSelect(firstDate)
+      } else {
+        onDateSelect(null)
+      }
     }
   }
 
@@ -116,7 +165,12 @@ export function Calendar({ selectedDate, onDateSelect, availableDates = [], clas
             variant="ghost"
             size="sm"
             onClick={goToPreviousMonth}
-            disabled={currentMonth <= firstMonth}
+            disabled={!availableDates.some(dateStr => {
+              const date = new Date(dateStr)
+              const prevMonth = subMonths(currentMonth, 1)
+              return date.getFullYear() === prevMonth.getFullYear() && 
+                     date.getMonth() === prevMonth.getMonth()
+            })}
             className="h-8 w-8 p-0 hover:bg-orange-100 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <ChevronLeft className="w-4 h-4" />
@@ -125,7 +179,12 @@ export function Calendar({ selectedDate, onDateSelect, availableDates = [], clas
             variant="ghost"
             size="sm"
             onClick={goToNextMonth}
-            disabled={currentMonth >= lastMonth}
+            disabled={!availableDates.some(dateStr => {
+              const date = new Date(dateStr)
+              const nextMonth = addMonths(currentMonth, 1)
+              return date.getFullYear() === nextMonth.getFullYear() && 
+                     date.getMonth() === nextMonth.getMonth()
+            })}
             className="h-8 w-8 p-0 hover:bg-orange-100 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <ChevronRight className="w-4 h-4" />
@@ -143,40 +202,49 @@ export function Calendar({ selectedDate, onDateSelect, availableDates = [], clas
       </div>
 
       {/* Calendar grid */}
-      <div className="grid grid-cols-7 gap-1">
-        {allDays.map((day, index) => {
-          const isCurrentMonth = isSameMonth(day, currentMonth)
-          const isAvailable = isDateAvailable(day)
-          const isSelected = isDateSelected(day)
-          const isTodayDate = isToday(day)
+      {currentMonthHasData ? (
+        <div className="grid grid-cols-7 gap-1">
+          {allDays.map((day, index) => {
+            const isCurrentMonth = isSameMonth(day, currentMonth)
+            const isAvailable = isDateAvailable(day)
+            const isSelected = isDateSelected(day)
+            const isTodayDate = isToday(day)
 
-          return (
-            <button
-              key={index}
-              onClick={() => handleDateClick(day)}
-              disabled={!isAvailable}
-              className={`
-                h-10 w-10 text-sm rounded-lg transition-all duration-200 flex items-center justify-center
-                ${!isCurrentMonth 
-                  ? 'text-gray-300 cursor-not-allowed' 
-                  : isAvailable 
-                    ? 'text-gray-700 hover:bg-orange-100 cursor-pointer' 
-                    : 'text-gray-400 cursor-not-allowed'
-                }
-                ${isSelected 
-                  ? 'bg-orange-500 text-white hover:bg-orange-600 shadow-md' 
-                  : isTodayDate && isAvailable
-                    ? 'bg-orange-200 text-orange-700 font-semibold'
-                    : ''
-                }
-                ${isAvailable && !isSelected ? 'hover:scale-105' : ''}
-              `}
-            >
-              {day.getDate()}
-            </button>
-          )
-        })}
-      </div>
+            return (
+              <button
+                key={index}
+                onClick={() => handleDateClick(day)}
+                disabled={!isAvailable}
+                className={`
+                  h-10 w-10 text-sm rounded-lg transition-all duration-200 flex items-center justify-center
+                  ${!isCurrentMonth 
+                    ? 'text-gray-300 cursor-not-allowed' 
+                    : isAvailable 
+                      ? 'text-gray-700 hover:bg-orange-100 cursor-pointer' 
+                      : 'text-gray-400 cursor-not-allowed'
+                  }
+                  ${isSelected 
+                    ? 'bg-orange-500 text-white hover:bg-orange-600 shadow-md' 
+                    : isTodayDate && isAvailable
+                      ? 'bg-orange-200 text-orange-700 font-semibold'
+                      : ''
+                  }
+                  ${isAvailable && !isSelected ? 'hover:scale-105' : ''}
+                `}
+              >
+                {day.getDate()}
+              </button>
+            )
+          })}
+        </div>
+      ) : (
+        <div className="flex items-center justify-center h-40 text-gray-500">
+          <div className="text-center">
+            <div className="text-sm">Nenhuma data disponível</div>
+            <div className="text-xs text-gray-400 mt-1">neste mês</div>
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <div className="flex justify-between items-center mt-4 pt-3 border-t">

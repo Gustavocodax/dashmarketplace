@@ -141,7 +141,7 @@ export function OrderTable({ data, onViewDetails }: OrderTableProps) {
                 </span>
               </td>
               <td className="p-3">
-                <span className="font-medium text-primary">
+                <span className="font-medium text-gray-600">
                   {formatCurrency(order["Valor Total"])}
                 </span>
               </td>

@@ -68,8 +68,20 @@ export function Dashboard({ data }: DashboardProps) {
         const orderDate = parseDate(order["Data de criação do pedido"])
         if (!orderDate) return false
         
-        if (filters.dataInicio && orderDate < filters.dataInicio) return false
-        if (filters.dataFim && orderDate > filters.dataFim) return false
+        // Para dataInicio, comparar apenas a data (sem horário)
+        if (filters.dataInicio) {
+          const orderDateOnly = new Date(orderDate.getFullYear(), orderDate.getMonth(), orderDate.getDate())
+          const inicioDateOnly = new Date(filters.dataInicio.getFullYear(), filters.dataInicio.getMonth(), filters.dataInicio.getDate())
+          if (orderDateOnly < inicioDateOnly) return false
+        }
+        
+        // Para dataFim, comparar apenas a data (sem horário) e incluir o dia final
+        if (filters.dataFim) {
+          const orderDateOnly = new Date(orderDate.getFullYear(), orderDate.getMonth(), orderDate.getDate())
+          const fimDateOnly = new Date(filters.dataFim.getFullYear(), filters.dataFim.getMonth(), filters.dataFim.getDate())
+          // Incluir o dia final: usar >= ao invés de >
+          if (orderDateOnly > fimDateOnly) return false
+        }
       }
 
       // Filtro por status
