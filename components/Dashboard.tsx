@@ -31,21 +31,77 @@ export function Dashboard({ data }: DashboardProps) {
   const [viewMode, setViewMode] = useState<'orders' | 'products' | 'analytics'>('orders')
   const [selectedOrder, setSelectedOrder] = useState<ShopeeOrder | null>(null)
 
-  // Função para parsear datas
+  // Função para parsear datas de forma robusta
   function parseDate(dateString: string): Date | null {
     if (!dateString || dateString.trim() === '') return null
     
+    // Limpar a string de data
+    const cleanDateString = dateString.trim()
+    
+    // Tentar parseISO primeiro (mais confiável)
     try {
-      const parsed = parseISO(dateString)
-      return isValid(parsed) ? parsed : null
+      const parsed = parseISO(cleanDateString)
+      if (isValid(parsed)) {
+        return parsed
+      }
     } catch (e) {
-      try {
-        const parsed = new Date(dateString)
-        return isValid(parsed) ? parsed : null
-      } catch (e) {
-        return null
+      // Continuar para outros métodos
+    }
+    
+    // Tentar diferentes formatos de data manualmente
+    const formats = [
+      /^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2})$/, // 2025-07-31 14:30
+      /^(\d{4})-(\d{2})-(\d{2})$/, // 2025-07-31
+      /^(\d{2})\/(\d{2})\/(\d{4})\s+(\d{2}):(\d{2})$/, // 31/07/2025 14:30
+      /^(\d{2})\/(\d{2})\/(\d{4})$/, // 31/07/2025
+      /^(\d{2})\/(\d{2})\/(\d{4})\s+(\d{2}):(\d{2}):(\d{2})$/, // 31/07/2025 14:30:00
+    ]
+    
+    for (const format of formats) {
+      const match = cleanDateString.match(format)
+      if (match) {
+        try {
+          let year, month, day, hour = 0, minute = 0, second = 0
+          
+          if (format.source.includes('\\d{4}-\\d{2}-\\d{2}')) {
+            // Formato ISO
+            year = parseInt(match[1])
+            month = parseInt(match[2]) - 1 // JavaScript months are 0-based
+            day = parseInt(match[3])
+            if (match[4]) hour = parseInt(match[4])
+            if (match[5]) minute = parseInt(match[5])
+          } else {
+            // Formato brasileiro
+            day = parseInt(match[1])
+            month = parseInt(match[2]) - 1 // JavaScript months are 0-based
+            year = parseInt(match[3])
+            if (match[4]) hour = parseInt(match[4])
+            if (match[5]) minute = parseInt(match[5])
+            if (match[6]) second = parseInt(match[6])
+          }
+          
+          const parsed = new Date(year, month, day, hour, minute, second)
+          if (isValid(parsed)) {
+            return parsed
+          }
+        } catch (e) {
+          continue
+        }
       }
     }
+    
+    // Fallback: tentar parsear diretamente
+    try {
+      const parsed = new Date(cleanDateString)
+      if (isValid(parsed)) {
+        return parsed
+      }
+    } catch (e) {
+      // Último recurso
+    }
+    
+    console.warn(`Não foi possível parsear a data: "${dateString}"`)
+    return null
   }
 
   // Aplicar filtros aos dados

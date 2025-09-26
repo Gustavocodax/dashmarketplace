@@ -8,9 +8,20 @@ interface SalesChartProps {
 }
 
 export function SalesChart({ data }: SalesChartProps) {
+  console.log('SalesChart - Dados recebidos:', data)
+  
   const formatTooltipValue = (value: number) => formatCurrency(value)
   const formatXAxisLabel = (tickItem: string) => {
-    const date = new Date(tickItem)
+    // Garantir que a data seja parseada corretamente
+    let date: Date
+    if (tickItem.includes('-')) {
+      // Formato ISO: 2025-07-31
+      const [year, month, day] = tickItem.split('-').map(Number)
+      date = new Date(year, month - 1, day) // month é 0-based
+    } else {
+      date = new Date(tickItem)
+    }
+    
     return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
   }
 
@@ -30,7 +41,11 @@ export function SalesChart({ data }: SalesChartProps) {
           />
           <Tooltip 
             formatter={(value: number) => [formatTooltipValue(value), 'Vendas']}
-            labelFormatter={(label) => `Data: ${formatXAxisLabel(label)}`}
+            labelFormatter={(label) => {
+              const formattedDate = formatXAxisLabel(label)
+              console.log(`Tooltip - Data: ${label} -> ${formattedDate}`)
+              return `Data: ${formattedDate}`
+            }}
             contentStyle={{
               backgroundColor: 'hsl(var(--card))',
               border: '1px solid hsl(var(--border))',
