@@ -87,7 +87,7 @@ export function processShopeeData(orders: ShopeeOrder[], filters?: FilterOptions
   }
 
   // Calcular métricas básicas
-  const totalVendas = filteredOrders.reduce((sum, order) => sum + (order["Valor Total"] || 0), 0)
+  const totalVendas = filteredOrders.reduce((sum, order) => sum + (Number(order["Valor Total"]) || 0), 0)
   const totalPedidos = filteredOrders.length
   const ticketMedio = totalPedidos > 0 ? totalVendas / totalPedidos : 0
 
@@ -98,7 +98,7 @@ export function processShopeeData(orders: ShopeeOrder[], filters?: FilterOptions
     if (orderDate) {
       const date = format(orderDate, 'yyyy-MM-dd')
       const current = vendasPorDiaMap.get(date) || 0
-      vendasPorDiaMap.set(date, current + (order["Valor Total"] || 0))
+      vendasPorDiaMap.set(date, current + (Number(order["Valor Total"]) || 0))
     }
   })
   const vendasPorDia = Array.from(vendasPorDiaMap.entries())
@@ -110,7 +110,7 @@ export function processShopeeData(orders: ShopeeOrder[], filters?: FilterOptions
   filteredOrders.forEach(order => {
     const estado = order["UF"] || 'Não informado'
     const current = vendasPorEstadoMap.get(estado) || 0
-    vendasPorEstadoMap.set(estado, current + (order["Valor Total"] || 0))
+    vendasPorEstadoMap.set(estado, current + (Number(order["Valor Total"]) || 0))
   })
   const vendasPorEstado = Array.from(vendasPorEstadoMap.entries())
     .map(([estado, vendas]) => ({ estado, vendas }))
@@ -123,7 +123,7 @@ export function processShopeeData(orders: ShopeeOrder[], filters?: FilterOptions
     const current = produtosMap.get(produto) || { quantidade: 0, receita: 0 }
     produtosMap.set(produto, {
       quantidade: current.quantidade + (order["Quantidade"] || 0),
-      receita: current.receita + (order["Valor Total"] || 0)
+      receita: current.receita + (Number(order["Valor Total"]) || 0)
     })
   })
   const produtosMaisVendidos = Array.from(produtosMap.entries())
@@ -147,7 +147,7 @@ export function processShopeeData(orders: ShopeeOrder[], filters?: FilterOptions
     if (orderDate) {
       const mes = format(orderDate, 'yyyy-MM')
       const current = receitaPorMesMap.get(mes) || 0
-      receitaPorMesMap.set(mes, current + (order["Valor Total"] || 0))
+      receitaPorMesMap.set(mes, current + (Number(order["Valor Total"]) || 0))
     }
   })
   const receitaPorMes = Array.from(receitaPorMesMap.entries())

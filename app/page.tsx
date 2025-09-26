@@ -13,20 +13,39 @@ export default function Home() {
   }
 
   return (
-    <main className="container mx-auto px-4 py-8">
+    <main className="min-h-screen relative">
       {!data ? (
-        <div className="space-y-8">
-          <div className="text-center space-y-4">
-            <h1 className="text-4xl font-bold">Dashboard Shopee</h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Faça upload dos seus dados de vendas da Shopee e visualize métricas 
-              de performance, tendências de vendas e análises detalhadas.
-            </p>
+        <div className="relative min-h-screen flex items-center justify-center">
+          {/* Background SVG */}
+          <div className="absolute inset-0 w-full h-full">
+            <img 
+              src="/img/bg03.svg" 
+              alt="Background" 
+              className="w-full h-full object-cover"
+            />
           </div>
-          <FileUpload onDataLoaded={handleDataLoaded} />
+          
+          {/* Glass Effect Overlay */}
+          <div className="absolute inset-0 bg-black/20 backdrop-blur-sm"></div>
+          
+          {/* Content */}
+          <div className="relative z-10 w-full max-w-2xl mx-auto px-4">
+            <div className="text-center space-y-4 mb-8">
+              <h1 className="text-3xl font-bold text-white drop-shadow-lg">Dashboard Shopee</h1>
+              <p className="text-base text-white/90 max-w-lg mx-auto drop-shadow-md">
+                Faça upload dos seus dados de vendas da Shopee e visualize métricas 
+                de performance e análises detalhadas.
+              </p>
+            </div>
+            <div className="flex justify-center">
+              <FileUpload onDataLoaded={handleDataLoaded} />
+            </div>
+          </div>
         </div>
       ) : (
-        <Dashboard data={data} />
+        <div className="container mx-auto px-4 py-8">
+          <Dashboard data={data} />
+        </div>
       )}
     </main>
   )

@@ -12,7 +12,21 @@ interface StatsCardsProps {
 
 export function StatsCards({ data }: StatsCardsProps) {
   const stats = useMemo(() => {
-    const totalVendas = data.reduce((sum, order) => sum + (order["Valor Total"] || 0), 0)
+    if (!data || data.length === 0) {
+      return {
+        totalVendas: 0,
+        totalPedidos: 0,
+        ticketMedio: 0,
+        produtosUnicos: 0,
+        vendasHoje: 0
+      }
+    }
+    
+    const totalVendas = data.reduce((sum, order) => {
+      const valor = Number(order["Valor Total"]) || 0
+      return sum + valor
+    }, 0)
+    
     const totalPedidos = data.length
     const ticketMedio = totalPedidos > 0 ? totalVendas / totalPedidos : 0
     
@@ -23,7 +37,7 @@ export function StatsCards({ data }: StatsCardsProps) {
     const hoje = new Date().toISOString().split('T')[0]
     const vendasHoje = data.filter(order => 
       order["Data de criação do pedido"]?.startsWith(hoje)
-    ).reduce((sum, order) => sum + (order["Valor Total"] || 0), 0)
+    ).reduce((sum, order) => sum + (Number(order["Valor Total"]) || 0), 0)
 
     return {
       totalVendas,

@@ -16,41 +16,6 @@ export function FileUpload({ onDataLoaded }: FileUploadProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const loadExampleData = useCallback(async () => {
-    setIsLoading(true)
-    setError(null)
-
-    try {
-      const response = await fetch('/data/exemplo-shopee.json')
-      if (!response.ok) {
-        throw new Error('Erro ao carregar dados de exemplo')
-      }
-      const data = await response.json()
-      onDataLoaded(data)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao carregar dados de exemplo')
-    } finally {
-      setIsLoading(false)
-    }
-  }, [onDataLoaded])
-
-  const loadRealData = useCallback(async () => {
-    setIsLoading(true)
-    setError(null)
-
-    try {
-      const response = await fetch('/data/dados-reais-shopee.json')
-      if (!response.ok) {
-        throw new Error('Erro ao carregar dados reais')
-      }
-      const data = await response.json()
-      onDataLoaded(data)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao carregar dados reais')
-    } finally {
-      setIsLoading(false)
-    }
-  }, [onDataLoaded])
 
   const handleFile = useCallback(async (file: File) => {
     setIsLoading(true)
@@ -117,39 +82,39 @@ export function FileUpload({ onDataLoaded }: FileUploadProps) {
   }, [handleFile])
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
-      <CardContent className="p-8">
+    <Card className="w-full max-w-lg mx-auto shadow-2xl border-0 bg-gray-500/20 backdrop-blur-md">
+      <CardContent className="p-6">
         <div
           className={`
-            border-2 border-dashed rounded-lg p-8 text-center transition-colors
-            ${isDragOver ? 'border-primary bg-primary/5' : 'border-muted-foreground/25'}
-            ${isLoading ? 'opacity-50 pointer-events-none' : 'hover:border-primary/50'}
+            border-2 border-dashed rounded-lg p-6 text-center transition-all duration-300
+            ${isDragOver ? 'border-gray-400 bg-gray-500/10 scale-105' : 'border-gray-400/50'}
+            ${isLoading ? 'opacity-50 pointer-events-none' : 'hover:border-gray-400 hover:bg-gray-500/10'}
           `}
           onDrop={handleDrop}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
         >
           <div className="flex flex-col items-center space-y-4">
-            <div className="p-4 rounded-full bg-primary/10">
+            <div className="p-3 rounded-full bg-gray-500/20">
               {isLoading ? (
-                <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                <div className="w-8 h-8 border-2 border-gray-300 border-t-transparent rounded-full animate-spin" />
               ) : (
-                <Upload className="w-8 h-8 text-primary" />
+                <Upload className="w-8 h-8 text-gray-200" />
               )}
             </div>
 
             <div className="space-y-2">
-              <h3 className="text-lg font-semibold">
-                {isLoading ? 'Processando arquivo...' : 'Faça upload dos dados da Shopee'}
+              <h3 className="text-lg font-semibold text-gray-100">
+                {isLoading ? 'Processando arquivo...' : 'Faça upload dos seus dados'}
               </h3>
-              <p className="text-sm text-muted-foreground">
-                Arraste e solte seu arquivo CSV, JSON ou XLSX aqui, ou clique para selecionar
+              <p className="text-sm text-gray-200/80 max-w-sm">
+                Arraste e solte seu arquivo aqui ou clique para selecionar
               </p>
             </div>
 
-            <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-              <FileText className="w-4 h-4" />
-              <span>Formatos suportados: CSV, JSON, XLSX</span>
+            <div className="flex items-center space-x-2 text-xs text-gray-300/70 bg-gray-500/10 px-3 py-1 rounded-full">
+              <FileText className="w-3 h-3" />
+              <span>CSV, JSON, XLSX</span>
             </div>
 
             <input
@@ -160,40 +125,24 @@ export function FileUpload({ onDataLoaded }: FileUploadProps) {
               id="file-upload"
               disabled={isLoading}
             />
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Button
-                asChild
-                variant="outline"
-                disabled={isLoading}
-              >
-                <label htmlFor="file-upload" className="cursor-pointer">
-                  Selecionar Arquivo
-                </label>
-              </Button>
-              
-              <Button
-                variant="secondary"
-                onClick={loadExampleData}
-                disabled={isLoading}
-              >
-                Dados de Exemplo
-              </Button>
-
-              <Button
-                variant="default"
-                onClick={loadRealData}
-                disabled={isLoading}
-              >
-                Seus Dados Reais
-              </Button>
-            </div>
+            <Button
+              asChild
+              variant="default"
+              size="default"
+              disabled={isLoading}
+              className="px-6 py-2 text-sm font-medium bg-primary hover:bg-primary/90 text-primary-foreground border border-primary/20 hover:border-primary/30 transition-all duration-300 shadow-lg hover:shadow-xl"
+            >
+              <label htmlFor="file-upload" className="cursor-pointer">
+                {isLoading ? 'Processando...' : 'Selecionar Arquivo'}
+              </label>
+            </Button>
           </div>
         </div>
 
         {error && (
-          <div className="mt-4 p-4 rounded-lg bg-destructive/10 border border-destructive/20 flex items-center space-x-2">
-            <AlertCircle className="w-5 h-5 text-destructive" />
-            <span className="text-sm text-destructive">{error}</span>
+          <div className="mt-4 p-3 rounded-lg bg-red-500/20 border border-red-500/30 flex items-center space-x-2">
+            <AlertCircle className="w-4 h-4 text-red-300" />
+            <span className="text-sm text-red-200">{error}</span>
           </div>
         )}
       </CardContent>
