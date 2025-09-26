@@ -24,22 +24,15 @@ export function FileUpload({ onDataLoaded }: FileUploadProps) {
     try {
       let data: ShopeeOrder[]
 
-      if (file.type === 'application/json') {
-        const text = await file.text()
-        data = JSON.parse(text)
-      } else if (file.type === 'text/csv' || file.name.endsWith('.csv')) {
-        const text = await file.text()
-        data = parseCSVData(text)
-      } else if (
+      // Aceitar apenas arquivos XLSX
+      if (
         file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
-        file.type === 'application/vnd.ms-excel' ||
-        file.name.endsWith('.xlsx') ||
-        file.name.endsWith('.xls')
+        file.name.endsWith('.xlsx')
       ) {
         const buffer = await file.arrayBuffer()
         data = parseXLSXData(buffer)
       } else {
-        throw new Error('Formato de arquivo não suportado. Use CSV, JSON ou XLSX.')
+        throw new Error('Formato de arquivo não suportado. Use apenas arquivos XLSX.')
       }
 
       if (!Array.isArray(data) || data.length === 0) {
@@ -114,12 +107,12 @@ export function FileUpload({ onDataLoaded }: FileUploadProps) {
 
             <div className="flex items-center space-x-2 text-xs text-gray-300/70 bg-gray-500/10 px-3 py-1 rounded-full">
               <FileText className="w-3 h-3" />
-              <span>CSV, JSON, XLSX</span>
+              <span>XLSX</span>
             </div>
 
             <input
               type="file"
-              accept=".csv,.json,.xlsx,.xls"
+              accept=".xlsx"
               onChange={handleFileInput}
               className="hidden"
               id="file-upload"

@@ -30,13 +30,6 @@ export default function Home() {
           
           {/* Content */}
           <div className="relative z-10 w-full max-w-2xl mx-auto px-4">
-            <div className="text-center space-y-4 mb-8">
-              <h1 className="text-3xl font-bold text-white drop-shadow-lg">Dashboard Shopee</h1>
-              <p className="text-base text-white/90 max-w-lg mx-auto drop-shadow-md">
-                Faça upload dos seus dados de vendas da Shopee e visualize métricas 
-                de performance e análises detalhadas.
-              </p>
-            </div>
             <div className="flex justify-center">
               <FileUpload onDataLoaded={handleDataLoaded} />
             </div>
