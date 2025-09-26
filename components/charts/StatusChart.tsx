@@ -7,11 +7,11 @@ interface StatusChartProps {
 }
 
 const COLORS = [
-  'hsl(var(--primary))',
-  'hsl(var(--secondary))',
-  'hsl(var(--accent))',
-  'hsl(var(--muted))',
-  'hsl(var(--destructive))',
+  '#FF4806',
+  '#FF6B33',
+  '#FF8A5B',
+  '#FFA883',
+  '#FFC6AB',
 ]
 
 export function StatusChart({ data }: StatusChartProps) {

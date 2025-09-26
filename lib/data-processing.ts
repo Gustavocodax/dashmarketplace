@@ -3,6 +3,21 @@ import { format, parseISO, startOfDay, endOfDay, isValid } from 'date-fns'
 import * as XLSX from 'xlsx'
 
 export function processShopeeData(orders: ShopeeOrder[], filters?: FilterOptions): DashboardMetrics {
+  // Verificação de segurança
+  if (!orders || !Array.isArray(orders) || orders.length === 0) {
+    return {
+      totalVendas: 0,
+      totalPedidos: 0,
+      ticketMedio: 0,
+      taxaConversao: 0,
+      vendasPorDia: [],
+      vendasPorEstado: [],
+      produtosMaisVendidos: [],
+      statusPedidos: [],
+      receitaPorMes: []
+    }
+  }
+  
   let filteredOrders = orders
 
   // Função para parsear datas de forma robusta

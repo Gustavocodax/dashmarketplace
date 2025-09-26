@@ -110,8 +110,8 @@ export function OrderTable({ data, onViewDetails }: OrderTableProps) {
           </tr>
         </thead>
         <tbody>
-          {sortedData.map((order) => (
-            <tr key={order["ID do pedido"]} className="border-b hover:bg-muted/50 transition-colors">
+          {sortedData.map((order, index) => (
+            <tr key={`${order["ID do pedido"]}-${index}`} className="border-b hover:bg-muted/50 transition-colors">
               <td className="p-3">
                 <div className="text-sm">
                   {formatDate(order["Data de criação do pedido"])}

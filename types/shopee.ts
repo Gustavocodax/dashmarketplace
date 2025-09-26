@@ -77,4 +77,5 @@ export interface FilterOptions {
   status?: string[];
   estado?: string[];
   produto?: string[];
+  searchTerm?: string;
 }

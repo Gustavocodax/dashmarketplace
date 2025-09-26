@@ -12,7 +12,7 @@ interface ProductsTableProps {
   data: ShopeeOrder[]
 }
 
-type SortField = 'produto' | 'quantidade' | 'receita' | 'ticketMedio'
+type SortField = 'produto' | 'quantidade' | 'receita' | 'ticketMedio' | 'pedidos'
 type SortDirection = 'asc' | 'desc'
 
 export function ProductsTable({ data }: ProductsTableProps) {
@@ -179,7 +179,7 @@ export function ProductsTable({ data }: ProductsTableProps) {
             </thead>
             <tbody>
               {filteredAndSortedProducts.map((product, index) => (
-                <tr key={product.produto} className="border-b hover:bg-muted/50 transition-colors">
+                <tr key={`product-table-${index}-${product.produto}`} className="border-b hover:bg-muted/50 transition-colors">
                   <td className="p-3">
                     <div className="max-w-xs">
                       <div className="font-medium truncate" title={product.produto}>
