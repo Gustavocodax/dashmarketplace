@@ -24,7 +24,29 @@ export function DateRangeSelector({
   const [isOpen, setIsOpen] = useState(false)
   const [selectedStartDate, setSelectedStartDate] = useState<Date | null>(currentStartDate || null)
   const [selectedEndDate, setSelectedEndDate] = useState<Date | null>(currentEndDate || null)
-  const [currentMonth, setCurrentMonth] = useState(new Date())
+  
+  // Encontrar meses com dados disponíveis
+  const monthsWithData = useMemo(() => {
+    const months = new Set<string>()
+    
+    data.forEach(order => {
+      const orderDate = parseDate(order["Data de criação do pedido"])
+      if (orderDate) {
+        months.add(format(orderDate, 'yyyy-MM'))
+      }
+    })
+    
+    return Array.from(months).sort()
+  }, [data])
+
+  // Definir mês inicial como o primeiro mês com dados
+  const [currentMonth, setCurrentMonth] = useState(() => {
+    if (monthsWithData.length > 0) {
+      const [year, month] = monthsWithData[0].split('-')
+      return new Date(parseInt(year), parseInt(month) - 1)
+    }
+    return new Date()
+  })
 
   // Função para parsear datas
   function parseDate(dateString: string): Date | null {
@@ -129,13 +151,34 @@ export function DateRangeSelector({
     setIsOpen(false)
   }
 
-  // Navegar entre meses
+  // Navegar entre meses (apenas meses com dados)
   const goToPreviousMonth = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))
+    const currentMonthStr = format(currentMonth, 'yyyy-MM')
+    const currentIndex = monthsWithData.indexOf(currentMonthStr)
+    if (currentIndex > 0) {
+      const [year, month] = monthsWithData[currentIndex - 1].split('-')
+      setCurrentMonth(new Date(parseInt(year), parseInt(month) - 1))
+    }
   }
 
   const goToNextMonth = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))
+    const currentMonthStr = format(currentMonth, 'yyyy-MM')
+    const currentIndex = monthsWithData.indexOf(currentMonthStr)
+    if (currentIndex < monthsWithData.length - 1) {
+      const [year, month] = monthsWithData[currentIndex + 1].split('-')
+      setCurrentMonth(new Date(parseInt(year), parseInt(month) - 1))
+    }
+  }
+
+  // Verificar se pode navegar
+  const canGoPrevious = () => {
+    const currentMonthStr = format(currentMonth, 'yyyy-MM')
+    return monthsWithData.indexOf(currentMonthStr) > 0
+  }
+
+  const canGoNext = () => {
+    const currentMonthStr = format(currentMonth, 'yyyy-MM')
+    return monthsWithData.indexOf(currentMonthStr) < monthsWithData.length - 1
   }
 
   return (
@@ -170,28 +213,42 @@ export function DateRangeSelector({
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Navegação do mês */}
-            <div className="flex items-center justify-between">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={goToPreviousMonth}
-                disabled={currentMonth <= dateRange.min}
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
-              <h3 className="font-medium">
-                {format(currentMonth, 'MMMM yyyy', { locale: ptBR })}
-              </h3>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={goToNextMonth}
-                disabled={currentMonth >= dateRange.max}
-              >
-                <ChevronRight className="w-4 h-4" />
-              </Button>
-            </div>
+            {/* Seletor de mês */}
+            {monthsWithData.length > 1 ? (
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Mês com dados:</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {monthsWithData.map(monthStr => {
+                    const [year, month] = monthStr.split('-')
+                    const monthDate = new Date(parseInt(year), parseInt(month) - 1)
+                    const isCurrentMonth = format(currentMonth, 'yyyy-MM') === monthStr
+                    
+                    return (
+                      <button
+                        key={monthStr}
+                        onClick={() => setCurrentMonth(monthDate)}
+                        className={`
+                          p-2 text-sm rounded border transition-colors
+                          ${isCurrentMonth 
+                            ? 'bg-primary text-primary-foreground border-primary' 
+                            : 'bg-background hover:bg-secondary border-border'
+                          }
+                        `}
+                      >
+                        {format(monthDate, 'MMM yyyy', { locale: ptBR })}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            ) : (
+              <div className="text-center">
+                <h3 className="font-medium">
+                  {format(currentMonth, 'MMMM yyyy', { locale: ptBR })}
+                </h3>
+                <p className="text-xs text-muted-foreground">Único mês com dados</p>
+              </div>
+            )}
 
             {/* Grid de dias */}
             <div className="grid grid-cols-7 gap-1 text-center">
