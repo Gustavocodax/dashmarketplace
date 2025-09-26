@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, isToday } from 'date-fns'
@@ -14,20 +14,44 @@ interface CalendarProps {
 }
 
 export function Calendar({ selectedDate, onDateSelect, availableDates = [], className = '' }: CalendarProps) {
-  const [currentMonth, setCurrentMonth] = useState(selectedDate || new Date())
+  // Memoizar o processamento dos meses disponíveis
+  const { firstMonth, lastMonth, availableDatesSet } = useMemo(() => {
+    const availableMonths = new Set<string>()
+    const datesSet = new Set(availableDates)
+    
+    availableDates.forEach(dateStr => {
+      const date = new Date(dateStr)
+      const monthKey = `${date.getFullYear()}-${date.getMonth()}`
+      availableMonths.add(monthKey)
+    })
 
-  const monthStart = startOfMonth(currentMonth)
-  const monthEnd = endOfMonth(currentMonth)
-  const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd })
+    const sortedMonths = Array.from(availableMonths).sort()
+    const first = sortedMonths[0] ? new Date(parseInt(sortedMonths[0].split('-')[0]), parseInt(sortedMonths[0].split('-')[1])) : new Date()
+    const last = sortedMonths[sortedMonths.length - 1] ? new Date(parseInt(sortedMonths[sortedMonths.length - 1].split('-')[0]), parseInt(sortedMonths[sortedMonths.length - 1].split('-')[1])) : new Date()
 
-  // Adicionar dias do mês anterior para preencher a primeira semana
-  const startDate = new Date(monthStart)
-  startDate.setDate(startDate.getDate() - monthStart.getDay())
+    return { firstMonth: first, lastMonth: last, availableDatesSet: datesSet }
+  }, [availableDates])
 
-  const endDate = new Date(monthEnd)
-  endDate.setDate(endDate.getDate() + (6 - monthEnd.getDay()))
+  const [currentMonth, setCurrentMonth] = useState(selectedDate || firstMonth)
 
-  const allDays = eachDayOfInterval({ start: startDate, end: endDate })
+  // Memoizar os dias do calendário
+  const { monthStart, monthEnd, allDays } = useMemo(() => {
+    const start = startOfMonth(currentMonth)
+    const end = endOfMonth(currentMonth)
+
+    // Adicionar dias do mês anterior para preencher a primeira semana
+    const startDate = new Date(start)
+    startDate.setDate(startDate.getDate() - start.getDay())
+
+    const endDate = new Date(end)
+    endDate.setDate(endDate.getDate() + (6 - end.getDay()))
+
+    return {
+      monthStart: start,
+      monthEnd: end,
+      allDays: eachDayOfInterval({ start: startDate, end: endDate })
+    }
+  }, [currentMonth])
 
   const monthNames = [
     'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -36,33 +60,45 @@ export function Calendar({ selectedDate, onDateSelect, availableDates = [], clas
 
   const dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
 
-  const isDateAvailable = (date: Date) => {
+  const isDateAvailable = useCallback((date: Date) => {
     const dateStr = format(date, 'yyyy-MM-dd')
-    return availableDates.includes(dateStr)
-  }
+    return availableDatesSet.has(dateStr)
+  }, [availableDatesSet])
 
-  const isDateSelected = (date: Date) => {
+  const isDateSelected = useCallback((date: Date) => {
     return selectedDate && isSameDay(date, selectedDate)
-  }
+  }, [selectedDate])
 
-  const handleDateClick = (date: Date) => {
+  const handleDateClick = useCallback((date: Date) => {
     if (isDateAvailable(date)) {
       onDateSelect(isDateSelected(date) ? null : date)
     }
-  }
+  }, [isDateAvailable, isDateSelected, onDateSelect])
 
   const goToPreviousMonth = () => {
-    setCurrentMonth(subMonths(currentMonth, 1))
+    const prevMonth = subMonths(currentMonth, 1)
+    if (prevMonth >= firstMonth) {
+      setCurrentMonth(prevMonth)
+    }
   }
 
   const goToNextMonth = () => {
-    setCurrentMonth(addMonths(currentMonth, 1))
+    const nextMonth = addMonths(currentMonth, 1)
+    if (nextMonth <= lastMonth) {
+      setCurrentMonth(nextMonth)
+    }
   }
 
   const goToToday = () => {
     const today = new Date()
-    setCurrentMonth(today)
-    onDateSelect(today)
+    if (isDateAvailable(today)) {
+      setCurrentMonth(today)
+      onDateSelect(today)
+    } else {
+      // Se hoje não tem dados, vai para o primeiro mês disponível
+      setCurrentMonth(firstMonth)
+      onDateSelect(null)
+    }
   }
 
   return (
@@ -70,7 +106,7 @@ export function Calendar({ selectedDate, onDateSelect, availableDates = [], clas
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-2">
-          <CalendarIcon className="w-5 h-5 text-primary" />
+          <CalendarIcon className="w-5 h-5 text-orange-600" />
           <h3 className="text-lg font-semibold text-gray-900">
             {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
           </h3>
@@ -80,7 +116,8 @@ export function Calendar({ selectedDate, onDateSelect, availableDates = [], clas
             variant="ghost"
             size="sm"
             onClick={goToPreviousMonth}
-            className="h-8 w-8 p-0 hover:bg-gray-100"
+            disabled={currentMonth <= firstMonth}
+            className="h-8 w-8 p-0 hover:bg-orange-100 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <ChevronLeft className="w-4 h-4" />
           </Button>
@@ -88,7 +125,8 @@ export function Calendar({ selectedDate, onDateSelect, availableDates = [], clas
             variant="ghost"
             size="sm"
             onClick={goToNextMonth}
-            className="h-8 w-8 p-0 hover:bg-gray-100"
+            disabled={currentMonth >= lastMonth}
+            className="h-8 w-8 p-0 hover:bg-orange-100 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <ChevronRight className="w-4 h-4" />
           </Button>
@@ -122,13 +160,13 @@ export function Calendar({ selectedDate, onDateSelect, availableDates = [], clas
                 ${!isCurrentMonth 
                   ? 'text-gray-300 cursor-not-allowed' 
                   : isAvailable 
-                    ? 'text-gray-700 hover:bg-primary/10 cursor-pointer' 
+                    ? 'text-gray-700 hover:bg-orange-100 cursor-pointer' 
                     : 'text-gray-400 cursor-not-allowed'
                 }
                 ${isSelected 
-                  ? 'bg-primary text-white hover:bg-primary/90 shadow-md' 
+                  ? 'bg-orange-500 text-white hover:bg-orange-600 shadow-md' 
                   : isTodayDate && isAvailable
-                    ? 'bg-primary/20 text-primary font-semibold'
+                    ? 'bg-orange-200 text-orange-700 font-semibold'
                     : ''
                 }
                 ${isAvailable && !isSelected ? 'hover:scale-105' : ''}
@@ -154,7 +192,7 @@ export function Calendar({ selectedDate, onDateSelect, availableDates = [], clas
           variant="ghost"
           size="sm"
           onClick={goToToday}
-          className="text-primary hover:text-primary/80"
+          className="text-orange-600 hover:text-orange-700"
         >
           Hoje
         </Button>

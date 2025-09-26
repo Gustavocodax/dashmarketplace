@@ -86,11 +86,11 @@ export function OrderTable({ data, onViewDetails }: OrderTableProps) {
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case 'concluído':
-        return 'bg-primary/10 text-primary'
+        return 'bg-gray-100 text-gray-700'
       case 'em trânsito':
-        return 'bg-secondary text-secondary-foreground'
+        return 'bg-blue-100 text-blue-700'
       case 'cancelado':
-        return 'bg-destructive/10 text-destructive'
+        return 'bg-orange-100 text-orange-700'
       default:
         return 'bg-muted text-muted-foreground'
     }

@@ -133,7 +133,7 @@ export function ShopeeFilters({
               }
               onFiltersChange(newFilters)
             }}
-            className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
           />
         </div>
 
@@ -141,12 +141,12 @@ export function ShopeeFilters({
           <Button
             variant="outline"
             onClick={() => setIsOpen(!isOpen)}
-            className="flex items-center space-x-2"
+            className="flex items-center space-x-2 hover:border-orange-500 hover:bg-orange-500/10"
           >
             <Filter className="w-4 h-4" />
             <span>Filtros</span>
             {hasActiveFilters && (
-              <div className="w-2 h-2 bg-primary rounded-full" />
+              <div className="w-2 h-2 bg-orange-500 rounded-full" />
             )}
           </Button>
 
@@ -166,12 +166,12 @@ export function ShopeeFilters({
       {/* Painel de filtros - Dropdown */}
       {isOpen && (
         <div className="absolute top-full left-0 right-0 mt-3 z-50">
-          <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
-            <CardHeader className="pb-4 bg-gradient-to-r from-primary/5 to-primary/10">
+          <Card className="shadow-2xl border bg-white/95 backdrop-blur-sm">
+            <CardHeader className="pb-4 bg-gradient-to-r from-orange-500/5 to-orange-500/10">
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center space-x-3 text-lg">
-                  <div className="p-2 bg-primary/10 rounded-lg">
-                    <Filter className="w-5 h-5 text-primary" />
+                  <div className="p-2 bg-orange-500/10 rounded-lg">
+                    <Filter className="w-5 h-5 text-orange-600" />
                   </div>
                   <span className="text-gray-800">Filtros Avançados</span>
                 </CardTitle>
@@ -179,7 +179,7 @@ export function ShopeeFilters({
                   variant="ghost"
                   size="sm"
                   onClick={() => setIsOpen(false)}
-                  className="h-8 w-8 p-0 hover:bg-gray-100 rounded-full"
+                  className="h-8 w-8 p-0 hover:bg-orange-100 rounded-full"
                 >
                   <X className="w-4 h-4" />
                 </Button>
@@ -190,22 +190,19 @@ export function ShopeeFilters({
                 {/* Filtro de Data */}
                 <div className="space-y-4">
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-blue-100 rounded-lg">
-                      <Calendar className="w-4 h-4 text-blue-600" />
+                    <div className="p-2 bg-orange-100 rounded-lg">
+                      <Calendar className="w-4 h-4 text-orange-600" />
                     </div>
                     <h4 className="font-semibold text-gray-800">Período</h4>
                   </div>
                   <div className="space-y-3">
-                    <div className="text-sm text-gray-500 bg-gray-50 px-3 py-2 rounded-lg">
-                      📅 {sortedDates.length} datas disponíveis
-                    </div>
                     <div className="space-y-3">
                       <div>
                         <label className="text-sm font-medium text-gray-700 mb-2 block">De:</label>
                         <Button
                           variant="outline"
                           onClick={() => setShowCalendar(showCalendar === 'start' ? null : 'start')}
-                          className="w-full justify-start text-left font-normal"
+                          className="w-full justify-start text-left font-normal hover:border-orange-500"
                         >
                           {filters.dataInicio ? format(filters.dataInicio, 'dd/MM/yyyy') : 'Selecionar data'}
                         </Button>
@@ -215,7 +212,7 @@ export function ShopeeFilters({
                         <Button
                           variant="outline"
                           onClick={() => setShowCalendar(showCalendar === 'end' ? null : 'end')}
-                          className="w-full justify-start text-left font-normal"
+                          className="w-full justify-start text-left font-normal hover:border-orange-500"
                         >
                           {filters.dataFim ? format(filters.dataFim, 'dd/MM/yyyy') : 'Selecionar data'}
                         </Button>
@@ -227,8 +224,8 @@ export function ShopeeFilters({
                 {/* Filtro de Status */}
                 <div className="space-y-4">
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-green-100 rounded-lg">
-                      <Clock className="w-4 h-4 text-green-600" />
+                    <div className="p-2 bg-orange-100 rounded-lg">
+                      <Clock className="w-4 h-4 text-orange-600" />
                     </div>
                     <h4 className="font-semibold text-gray-800">Status do Pedido</h4>
                   </div>
@@ -244,8 +241,8 @@ export function ShopeeFilters({
                           />
                           <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
                             filters.status?.includes(status) 
-                              ? 'bg-primary border-primary' 
-                              : 'border-gray-300 group-hover:border-primary/50'
+                              ? 'bg-orange-500 border-orange-500' 
+                              : 'border-gray-300 group-hover:border-orange-500/50'
                           }`}>
                             {filters.status?.includes(status) && (
                               <Check className="w-3 h-3 text-white" />
@@ -261,8 +258,8 @@ export function ShopeeFilters({
                 {/* Filtro de Estado */}
                 <div className="space-y-4">
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-purple-100 rounded-lg">
-                      <MapPin className="w-4 h-4 text-purple-600" />
+                    <div className="p-2 bg-orange-100 rounded-lg">
+                      <MapPin className="w-4 h-4 text-orange-600" />
                     </div>
                     <h4 className="font-semibold text-gray-800">Estado</h4>
                   </div>
@@ -278,8 +275,8 @@ export function ShopeeFilters({
                           />
                           <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
                             filters.estado?.includes(estado) 
-                              ? 'bg-primary border-primary' 
-                              : 'border-gray-300 group-hover:border-primary/50'
+                              ? 'bg-orange-500 border-orange-500' 
+                              : 'border-gray-300 group-hover:border-orange-500/50'
                           }`}>
                             {filters.estado?.includes(estado) && (
                               <Check className="w-3 h-3 text-white" />
@@ -312,8 +309,8 @@ export function ShopeeFilters({
                           />
                           <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
                             filters.produto?.includes(produto) 
-                              ? 'bg-primary border-primary' 
-                              : 'border-gray-300 group-hover:border-primary/50'
+                              ? 'bg-orange-500 border-orange-500' 
+                              : 'border-gray-300 group-hover:border-orange-500/50'
                           }`}>
                             {filters.produto?.includes(produto) && (
                               <Check className="w-3 h-3 text-white" />
@@ -353,7 +350,7 @@ export function ShopeeFilters({
               )}
 
               {/* Botões de ação */}
-              <div className="flex justify-between items-center pt-6 border-t border-gray-200">
+              <div className="flex justify-between items-center pt-6 border-t">
                 <div className="text-sm text-gray-500">
                   {hasActiveFilters ? 'Filtros ativos aplicados' : 'Nenhum filtro ativo'}
                 </div>
@@ -361,13 +358,13 @@ export function ShopeeFilters({
                   <Button
                     variant="outline"
                     onClick={clearFilters}
-                    className="px-6 py-2 border-gray-300 hover:bg-gray-50"
+                    className="px-6 py-2 hover:bg-orange-50 hover:border-orange-500"
                   >
                     Limpar Todos
                   </Button>
                   <Button
                     onClick={() => setIsOpen(false)}
-                    className="px-6 py-2 bg-primary hover:bg-primary/90 shadow-lg"
+                    className="px-6 py-2 bg-orange-500 hover:bg-orange-600 shadow-lg"
                   >
                     Aplicar Filtros
                   </Button>

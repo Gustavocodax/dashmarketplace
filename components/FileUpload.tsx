@@ -80,19 +80,19 @@ export function FileUpload({ onDataLoaded }: FileUploadProps) {
         <div
           className={`
             border-2 border-dashed rounded-lg p-6 text-center transition-all duration-300
-            ${isDragOver ? 'border-gray-400 bg-gray-500/10 scale-105' : 'border-gray-400/50'}
-            ${isLoading ? 'opacity-50 pointer-events-none' : 'hover:border-gray-400 hover:bg-gray-500/10'}
+            ${isDragOver ? 'border-orange-500 bg-orange-500/10 scale-105' : 'border-orange-500/50'}
+            ${isLoading ? 'opacity-50 pointer-events-none' : 'hover:border-orange-500 hover:bg-orange-500/10'}
           `}
           onDrop={handleDrop}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
         >
           <div className="flex flex-col items-center space-y-4">
-            <div className="p-3 rounded-full bg-gray-500/20">
+            <div className="p-3 rounded-full bg-orange-500/20">
               {isLoading ? (
-                <div className="w-8 h-8 border-2 border-gray-300 border-t-transparent rounded-full animate-spin" />
+                <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
               ) : (
-                <Upload className="w-8 h-8 text-gray-200" />
+                <Upload className="w-8 h-8 text-orange-600" />
               )}
             </div>
 
@@ -105,7 +105,7 @@ export function FileUpload({ onDataLoaded }: FileUploadProps) {
               </p>
             </div>
 
-            <div className="flex items-center space-x-2 text-xs text-gray-300/70 bg-gray-500/10 px-3 py-1 rounded-full">
+            <div className="flex items-center space-x-2 text-xs text-orange-300/70 bg-orange-500/10 px-3 py-1 rounded-full">
               <FileText className="w-3 h-3" />
               <span>XLSX</span>
             </div>

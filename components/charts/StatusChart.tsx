@@ -6,13 +6,18 @@ interface StatusChartProps {
   data: Array<{ status: string; quantidade: number }>
 }
 
-const COLORS = [
-  '#FF4806',
-  '#FF6B33',
-  '#FF8A5B',
-  '#FFA883',
-  '#FFC6AB',
-]
+const getStatusColor = (status: string) => {
+  switch (status.toLowerCase()) {
+    case 'concluído':
+      return '#6B7280' // cinza
+    case 'cancelado':
+      return '#FF4806' // laranja
+    case 'em trânsito':
+      return '#3B82F6' // azul
+    default:
+      return '#9CA3AF' // cinza claro
+  }
+}
 
 export function StatusChart({ data }: StatusChartProps) {
   return (
@@ -30,7 +35,7 @@ export function StatusChart({ data }: StatusChartProps) {
             dataKey="quantidade"
           >
             {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              <Cell key={`cell-${index}`} fill={getStatusColor(entry.status)} />
             ))}
           </Pie>
           <Tooltip 
